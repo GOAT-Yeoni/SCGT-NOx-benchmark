@@ -104,16 +104,21 @@ COLOR = {
 }
 
 
-def paper_style(fig: go.Figure, height: int = 400, has_axes: bool = True) -> go.Figure:
-    """모든 차트에 일관된 논문 스타일 적용"""
+def paper_style(fig: go.Figure, height: int = 400, has_axes: bool = True,
+                 title: str = "") -> go.Figure:
+    """모든 차트에 일관된 논문 스타일 적용. title="" 로 'undefined' 헤더 제거."""
     fig.update_layout(
+        title=dict(
+            text=title,  # 빈 문자열 → 'undefined' 표시 차단
+            font=dict(family="Times New Roman, Times, serif", size=15, color=COLOR["text"]),
+            x=0.5, xanchor="center", y=0.97, yanchor="top",
+        ),
         template="simple_white",
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
         font=dict(family="Times New Roman, Times, serif", size=13, color=COLOR["text"]),
-        title_font=dict(family="Times New Roman, Times, serif", size=15, color=COLOR["text"]),
         height=height,
-        margin=dict(l=70, r=30, t=60, b=60),
+        margin=dict(l=72, r=30, t=70 if title else 50, b=60),
         legend=dict(
             bgcolor="rgba(255,255,255,0.95)",
             bordercolor=COLOR["axis"],
@@ -266,6 +271,160 @@ LIT_RBLC: List[Dict] = [
      "exh_T_C": 470, "scr_T_C": 470,
      "outlet_NOx_ppmvd_15O2": 3.0, "NOx_red_pct": 88.0, "NH3_slip_ppm": 5.0,
      "year": 2022, "source": "Siemens 기술보고서"},
+]
+
+# ============================================================================
+# 제조사 × 촉매 제품 데이터 (Manufacturer Product Lineup)
+# 출처: 제조사 공개 카탈로그 + EPRI 3002022688 + 학술 리뷰
+# ============================================================================
+LIT_MFR: List[Dict] = [
+    # ── Cormetech (US) — GT SCR 시장 리더
+    {"manufacturer": "Cormetech", "country": "USA",
+     "product": "Honeycomb V-Ti", "chemistry": "V₂O₅-WO₃/TiO₂",
+     "catalyst_base": "V/Ti", "form": "Honeycomb",
+     "T_min": 290, "T_max": 420, "T_opt": 360,
+     "eff_max_pct": 95.0, "slip_ppm": 5.0,
+     "market": "GT BACT", "ref": "Cormetech 카탈로그 / EPRI 3002022688"},
+    {"manufacturer": "Cormetech", "country": "USA",
+     "product": "Plate V-Ti (Coal)", "chemistry": "V₂O₅-WO₃/TiO₂",
+     "catalyst_base": "V/Ti", "form": "Plate",
+     "T_min": 320, "T_max": 400, "T_opt": 370,
+     "eff_max_pct": 92.0, "slip_ppm": 3.0,
+     "market": "Coal utility", "ref": "Cormetech 카탈로그"},
+    # ── Haldor Topsoe (Denmark) — DNX 시리즈
+    {"manufacturer": "Haldor Topsoe", "country": "Denmark",
+     "product": "DNX (V-Mo-W/Ti)", "chemistry": "V₂O₅-MoO₃-WO₃/TiO₂",
+     "catalyst_base": "V/Ti", "form": "Honeycomb/Plate",
+     "T_min": 280, "T_max": 420, "T_opt": 360,
+     "eff_max_pct": 96.0, "slip_ppm": 3.0,
+     "market": "Utility / GT", "ref": "Topsoe DNX brochure"},
+    {"manufacturer": "Haldor Topsoe", "country": "Denmark",
+     "product": "DNX-LT (저온형)", "chemistry": "V-Mo/Ti 강화",
+     "catalyst_base": "V/Ti (LT)", "form": "Honeycomb",
+     "T_min": 200, "T_max": 320, "T_opt": 260,
+     "eff_max_pct": 88.0, "slip_ppm": 5.0,
+     "market": "Tail-end SCR", "ref": "Topsoe LT-SCR 보고서"},
+    # ── Johnson Matthey (UK) — VOC-CAT / NOX-CAT
+    {"manufacturer": "Johnson Matthey", "country": "UK",
+     "product": "NOXCAT (V-Ti)", "chemistry": "V₂O₅-WO₃/TiO₂",
+     "catalyst_base": "V/Ti", "form": "Honeycomb",
+     "T_min": 290, "T_max": 420, "T_opt": 365,
+     "eff_max_pct": 94.0, "slip_ppm": 5.0,
+     "market": "GT / Utility", "ref": "JM 제품 사양서"},
+    {"manufacturer": "Johnson Matthey", "country": "UK",
+     "product": "Cu-CHA (모바일·고정)", "chemistry": "Cu-SSZ-13 (Cu-CHA)",
+     "catalyst_base": "Cu-zeolite", "form": "Washcoat / Honeycomb",
+     "T_min": 200, "T_max": 550, "T_opt": 350,
+     "eff_max_pct": 95.0, "slip_ppm": 4.0,
+     "market": "Diesel + Stationary", "ref": "JM ACS 논문 2019"},
+    # ── BASF — Premair 시리즈
+    {"manufacturer": "BASF", "country": "Germany",
+     "product": "Premair NXT (Cu-CHA)", "chemistry": "Cu-SAPO-34 / Cu-SSZ-13",
+     "catalyst_base": "Cu-SAPO-34", "form": "Honeycomb",
+     "T_min": 200, "T_max": 580, "T_opt": 400,
+     "eff_max_pct": 95.0, "slip_ppm": 3.0,
+     "market": "Diesel HD / 고온 SCR", "ref": "BASF 제품 카탈로그"},
+    {"manufacturer": "BASF", "country": "Germany",
+     "product": "Cu-Beta (저온)", "chemistry": "Cu-Beta zeolite",
+     "catalyst_base": "Cu-zeolite", "form": "Honeycomb",
+     "T_min": 220, "T_max": 500, "T_opt": 350,
+     "eff_max_pct": 92.0, "slip_ppm": 5.0,
+     "market": "Industrial low-temp", "ref": "BASF 사양서"},
+    # ── Umicore — zeolite
+    {"manufacturer": "Umicore", "country": "Belgium",
+     "product": "Cu-SSZ-13", "chemistry": "Cu-SSZ-13",
+     "catalyst_base": "Cu-zeolite", "form": "Washcoat",
+     "T_min": 200, "T_max": 550, "T_opt": 380,
+     "eff_max_pct": 94.0, "slip_ppm": 4.5,
+     "market": "Mobile + GT pilot", "ref": "Umicore 보고서"},
+    {"manufacturer": "Umicore", "country": "Belgium",
+     "product": "Fe-Beta", "chemistry": "Fe-Beta zeolite",
+     "catalyst_base": "Fe-zeolite", "form": "Washcoat",
+     "T_min": 300, "T_max": 600, "T_opt": 480,
+     "eff_max_pct": 91.0, "slip_ppm": 6.0,
+     "market": "고온 GT", "ref": "Catalysts 2021"},
+    # ── Hitachi-Zosen (Japan)
+    {"manufacturer": "Hitachi-Zosen", "country": "Japan",
+     "product": "ENESEED HC", "chemistry": "V₂O₅-WO₃/TiO₂",
+     "catalyst_base": "V/Ti", "form": "Plate",
+     "T_min": 300, "T_max": 410, "T_opt": 360,
+     "eff_max_pct": 93.0, "slip_ppm": 5.0,
+     "market": "Asia GT / Utility", "ref": "Hitachi-Zosen 카탈로그"},
+    # ── Babcock-Hitachi K.K. (BHK)
+    {"manufacturer": "Babcock-Hitachi", "country": "Japan",
+     "product": "BHK Plate V/Ti", "chemistry": "V₂O₅-WO₃/TiO₂",
+     "catalyst_base": "V/Ti", "form": "Plate",
+     "T_min": 290, "T_max": 410, "T_opt": 360,
+     "eff_max_pct": 92.0, "slip_ppm": 5.0,
+     "market": "Boiler / GT", "ref": "BHK 기술자료"},
+    # ── Mitsubishi Power
+    {"manufacturer": "Mitsubishi Power", "country": "Japan",
+     "product": "MHI BMC V-Ti", "chemistry": "V₂O₅-WO₃/TiO₂ (개량)",
+     "catalyst_base": "V/Ti", "form": "Honeycomb",
+     "T_min": 290, "T_max": 430, "T_opt": 365,
+     "eff_max_pct": 94.0, "slip_ppm": 5.0,
+     "market": "GT / 한국·일본", "ref": "MHI 기술보고서"},
+    {"manufacturer": "Mitsubishi Power", "country": "Japan",
+     "product": "Cu-SAPO HT (시제품)", "chemistry": "Cu-SAPO-34",
+     "catalyst_base": "Cu-SAPO-34", "form": "Washcoat",
+     "T_min": 380, "T_max": 600, "T_opt": 510,
+     "eff_max_pct": 95.0, "slip_ppm": 4.0,
+     "market": "고온 SCR R&D", "ref": "MHI 2023 학회"},
+    # ── Argillon (now JM) — 저온 특화
+    {"manufacturer": "Argillon (JM)", "country": "Germany",
+     "product": "LT-SCR (low-T)", "chemistry": "V-W-Mo/TiO₂ + 첨가제",
+     "catalyst_base": "V/Ti (LT)", "form": "Honeycomb",
+     "T_min": 180, "T_max": 280, "T_opt": 240,
+     "eff_max_pct": 87.0, "slip_ppm": 5.0,
+     "market": "Tail-end / 산업", "ref": "Argillon 보고서"},
+    # ── 신흥 저온 촉매 (Mn 계)
+    {"manufacturer": "Tianhe (CN)", "country": "China",
+     "product": "MnOx-CeO₂", "chemistry": "MnOx-CeO₂",
+     "catalyst_base": "Mn-CeOx (LT)", "form": "Honeycomb",
+     "T_min": 150, "T_max": 280, "T_opt": 220,
+     "eff_max_pct": 90.0, "slip_ppm": 8.0,
+     "market": "저온 산업 R&D", "ref": "Appl. Catal. B 2022"},
+    {"manufacturer": "POSCO Eco-Catalyst", "country": "Korea",
+     "product": "Mn-V/Ti 저온형", "chemistry": "V-Mn-Ce/TiO₂",
+     "catalyst_base": "V/Mn (LT)", "form": "Honeycomb",
+     "T_min": 180, "T_max": 320, "T_opt": 250,
+     "eff_max_pct": 89.0, "slip_ppm": 6.0,
+     "market": "철강·시멘트 저온 SCR", "ref": "POSCO 기술자료"},
+]
+
+# ============================================================================
+# 저온 SCR R&D 효율 트렌드 (operating-T vs efficiency, by year)
+# 출처: Appl. Catal. B / Catalysts (MDPI) / EPA STAR / NASA TM 등
+# ============================================================================
+LT_SCR_RND: List[Dict] = [
+    {"year": 1995, "tech": "V₂O₅-WO₃/TiO₂ (1세대)", "T_C": 350, "eff_pct": 90.0,
+     "note": "당시 표준 SCR — air tempering 필수"},
+    {"year": 2000, "tech": "V-W-Mo/TiO₂", "T_C": 320, "eff_pct": 92.0,
+     "note": "Mo 첨가로 저온 활성 향상"},
+    {"year": 2005, "tech": "Cu-Beta zeolite", "T_C": 300, "eff_pct": 88.0,
+     "note": "제올라이트 도입 초기"},
+    {"year": 2008, "tech": "Argillon LT-SCR", "T_C": 240, "eff_pct": 86.0,
+     "note": "tail-end SCR 상용화"},
+    {"year": 2012, "tech": "Cu-SSZ-13", "T_C": 280, "eff_pct": 92.0,
+     "note": "HD diesel 채택, 광범위 운전창"},
+    {"year": 2014, "tech": "MnOx-CeO₂ (lab)", "T_C": 200, "eff_pct": 88.0,
+     "note": "저온 R&D 진입"},
+    {"year": 2017, "tech": "Cu-SAPO-34", "T_C": 250, "eff_pct": 93.0,
+     "note": "더 넓은 윈도우, 열안정성↑"},
+    {"year": 2019, "tech": "V-Mn-Ce/TiO₂", "T_C": 220, "eff_pct": 90.0,
+     "note": "Mn 도핑으로 저온 활성"},
+    {"year": 2020, "tech": "MnOx-CeO₂ (pilot)", "T_C": 180, "eff_pct": 89.0,
+     "note": "pilot 검증"},
+    {"year": 2021, "tech": "Cu-CHA + 첨가제", "T_C": 230, "eff_pct": 94.0,
+     "note": "BASF Premair NXT 라인"},
+    {"year": 2022, "tech": "Fe-Cu 이중 활성", "T_C": 260, "eff_pct": 92.0,
+     "note": "광역 운전창 ZSM-5 기반"},
+    {"year": 2023, "tech": "MnOx-Fe-CeO₂", "T_C": 170, "eff_pct": 91.0,
+     "note": "초저온 SO₂ 내성 강화"},
+    {"year": 2024, "tech": "Cu-SSZ-13 + 신소재", "T_C": 200, "eff_pct": 95.0,
+     "note": "Umicore/JM 차세대"},
+    {"year": 2025, "tech": "VOx-WOx/TiO₂ 나노쉘", "T_C": 240, "eff_pct": 94.0,
+     "note": "코어-쉘 구조로 활성↑·SO₂↓"},
 ]
 
 # AP-42 §3.1 미통제 NOx 배출계수 (lb/MMBtu)
@@ -709,7 +868,9 @@ st.caption(
     "EPRI 3002022688/3002030747/3002030748 · GE/Siemens/MHI 사양"
 )
 
-tab1, tab2, tab3, tab4 = st.tabs(["종합비교", "에너지분해", "경제성", "트렌드"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ["종합비교", "에너지분해", "경제성", "트렌드", "촉매·제조사"]
+)
 
 # ----------------------------------------------------------------------------
 # Tab 1: 종합비교
@@ -780,7 +941,7 @@ with tab1:
                res_HT["opex_annual"]/1e6, res_HT["LCOC"]]
 
     fig = make_subplots(rows=1, cols=4, subplot_titles=metrics,
-                         horizontal_spacing=0.08)
+                         horizontal_spacing=0.10, vertical_spacing=0.15)
     for i, (lt, ht) in enumerate(zip(LT_vals, HT_vals)):
         fig.add_trace(go.Bar(
             x=["저온+AT"], y=[lt],
@@ -789,6 +950,7 @@ with tab1:
             showlegend=(i == 0), name="저온 SCR + AT",
             text=[f"{lt:.2f}"], textposition="outside",
             textfont=dict(family="Times New Roman, serif", size=11),
+            cliponaxis=False,
         ), row=1, col=i+1)
         fig.add_trace(go.Bar(
             x=["고온"], y=[ht],
@@ -797,12 +959,21 @@ with tab1:
             showlegend=(i == 0), name="고온 SCR",
             text=[f"{ht:.2f}"], textposition="outside",
             textfont=dict(family="Times New Roman, serif", size=11),
+            cliponaxis=False,
         ), row=1, col=i+1)
-    paper_style(fig, height=360)
-    fig.update_layout(legend=dict(orientation="h", y=1.18, x=0.5, xanchor="center"))
-    # 서브플롯 제목 폰트 통일
+        # 텍스트 라벨이 잘리지 않도록 y축 상한 30% 여유
+        ymax = max(lt, ht) * 1.30 if max(lt, ht) > 0 else 1.0
+        fig.update_yaxes(range=[0, ymax], row=1, col=i+1)
+    paper_style(fig, height=400)
+    fig.update_layout(
+        margin=dict(l=50, r=30, t=110, b=60),
+        legend=dict(orientation="h", y=1.20, x=0.5, xanchor="center",
+                    yanchor="bottom"),
+    )
+    # 서브플롯 제목 폰트 통일 + 위치 약간 위로
     for ann in fig["layout"]["annotations"]:
         ann["font"] = dict(family="Times New Roman, serif", size=13, color=COLOR["text"])
+        ann["yshift"] = 8
     st.plotly_chart(fig, use_container_width=True)
 
 # ----------------------------------------------------------------------------
@@ -927,16 +1098,16 @@ with tab2:
     fig.add_vrect(x0=380, x1=600, fillcolor=COLOR["Cu_zeo"],
                    opacity=0.05, line_width=0, layer="below")
 
-    paper_style(fig, height=440)
+    paper_style(fig, height=480)
     fig.update_layout(
         xaxis_title="SCR 운전 온도 (°C)",
         yaxis_title="NOx 제거 효율 (%)",
-        legend=dict(orientation="v", x=1.02, y=1, xanchor="left",
+        legend=dict(orientation="h", x=0.5, y=-0.22, xanchor="center",
                     yanchor="top", bgcolor="rgba(255,255,255,0.95)"),
-        margin=dict(l=70, r=180, t=40, b=60),
+        margin=dict(l=72, r=30, t=30, b=130),
     )
     fig.update_xaxes(range=[250, 650], dtick=50)
-    fig.update_yaxes(range=[70, 100], dtick=5)
+    fig.update_yaxes(range=[20, 100], dtick=10)
     st.plotly_chart(fig, use_container_width=True)
 
 # ----------------------------------------------------------------------------
@@ -1117,14 +1288,15 @@ with tab4:
         textfont=dict(family="Times New Roman, serif", size=12),
     ))
 
+    paper_style(fig, height=520)
     fig.update_layout(
         xaxis_title="SCR 운전온도 (°C)",
         yaxis_title="NOx 제거 효율 (%)",
-        legend=dict(orientation="v", x=1.02, y=1, xanchor="left", yanchor="top"),
-        margin=dict(l=70, r=200, t=40, b=60),
+        legend=dict(orientation="h", x=0.5, y=-0.22, xanchor="center",
+                     yanchor="top", bgcolor="rgba(255,255,255,0.95)"),
+        margin=dict(l=72, r=30, t=30, b=140),
     )
-    paper_style(fig, height=480)
-    fig.update_xaxes(range=[400, 620], dtick=20)
+    fig.update_xaxes(range=[330, 620], dtick=20)
     fig.update_yaxes(range=[78, 96], dtick=2)
     st.plotly_chart(fig, use_container_width=True)
 
@@ -1178,10 +1350,308 @@ with tab4:
         "- **NH₃/NOx α=1.05**, slip <5 ppm이 BAAQMD/CARB 표준 설계점"
     )
 
+# ----------------------------------------------------------------------------
+# Tab 5: 촉매·제조사 (Manufacturer × Catalyst Performance)
+# ----------------------------------------------------------------------------
+with tab5:
+    st.subheader("촉매 베이스별 성능 요약")
+    st.caption("4개 촉매 베이스의 운전 윈도우 / 최적 온도 / 최대 효율 비교 — "
+               "물리·화학적 특성 기준.")
+
+    # 베이스별 카드 4개
+    cb_cols = st.columns(4)
+    base_info = [
+        ("V/Ti", "V₂O₅-WO₃/TiO₂", COLOR["VTi"]),
+        ("Cu-zeolite", "Cu-SSZ-13 / Cu-Beta", COLOR["Cu_zeo"]),
+        ("Fe-zeolite", "Fe-Beta / Fe-ZSM-5", COLOR["Fe_zeo"]),
+        ("Cu-SAPO-34", "Cu-SAPO-34", COLOR["Cu_SAPO"]),
+    ]
+    for col, (base, detail, color) in zip(cb_cols, base_info):
+        with col:
+            cw = CAT_WINDOWS[base]
+            T_lo, T_hi = cw["window"]
+            st.markdown(
+                f"""
+                <div class="metric-card" style="border-left: 6px solid {color};">
+                  <h4>{base}</h4>
+                  <div style="font-size:13px; color:#444; margin-bottom:8px;">{detail}</div>
+                  <div style="font-size:13px; line-height:1.7;">
+                    <b>운전창</b>: {T_lo}–{T_hi}°C<br>
+                    <b>T_opt</b>: {cw['T_opt']}°C<br>
+                    <b>최대 효율</b>: {cw['eff_max']*100:.1f}%
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    st.markdown("---")
+    st.subheader("제조사별 SCR 촉매 제품군")
+    st.caption("주요 SCR 촉매 제조사의 상용 제품 (Cormetech, Topsoe, JM, BASF, Umicore, "
+               "Hitachi-Zosen, MHI, BHK 등) 의 화학·운전창·효율·시장 정리.")
+
+    df_mfr = pd.DataFrame(LIT_MFR)
+
+    # 필터 행
+    fcol1, fcol2 = st.columns([1, 1])
+    with fcol1:
+        sel_mfr = st.multiselect(
+            "제조사 필터",
+            options=sorted(df_mfr["manufacturer"].unique()),
+            default=sorted(df_mfr["manufacturer"].unique()),
+        )
+    with fcol2:
+        sel_base = st.multiselect(
+            "촉매 베이스 필터",
+            options=sorted(df_mfr["catalyst_base"].unique()),
+            default=sorted(df_mfr["catalyst_base"].unique()),
+        )
+
+    df_view = df_mfr[
+        df_mfr["manufacturer"].isin(sel_mfr) &
+        df_mfr["catalyst_base"].isin(sel_base)
+    ].reset_index(drop=True)
+
+    # 운전온도 범위 — Gantt 스타일 가로 막대 (제조사별 운전창)
+    st.markdown("##### 제품별 운전 온도 범위")
+    fig = go.Figure()
+
+    # 색상 매핑
+    base_color_map = {
+        "V/Ti":         COLOR["VTi"],
+        "V/Ti (LT)":    "#5b8aaf",
+        "Cu-zeolite":   COLOR["Cu_zeo"],
+        "Cu-SAPO-34":   COLOR["Cu_SAPO"],
+        "Fe-zeolite":   COLOR["Fe_zeo"],
+        "Mn-CeOx (LT)": "#0d9488",
+        "V/Mn (LT)":    "#7c3aed",
+    }
+
+    # y축 라벨 = "제조사 — 제품"
+    df_view = df_view.copy()
+    df_view["label"] = df_view["manufacturer"] + " — " + df_view["product"]
+    df_view = df_view.sort_values("T_min").reset_index(drop=True)
+
+    for _, r in df_view.iterrows():
+        col = base_color_map.get(r["catalyst_base"], "#888888")
+        # 운전 윈도우 (선)
+        fig.add_trace(go.Scatter(
+            x=[r["T_min"], r["T_max"]],
+            y=[r["label"], r["label"]],
+            mode="lines",
+            line=dict(color=col, width=10),
+            opacity=0.55,
+            showlegend=False,
+            hoverinfo="skip",
+        ))
+        # 최적점 (마커)
+        fig.add_trace(go.Scatter(
+            x=[r["T_opt"]], y=[r["label"]],
+            mode="markers",
+            marker=dict(symbol="diamond", size=12, color=col,
+                         line=dict(color="#000000", width=1.2)),
+            showlegend=False,
+            hovertemplate=(
+                f"<b>{r['manufacturer']} · {r['product']}</b><br>"
+                f"화학: {r['chemistry']}<br>"
+                f"베이스: {r['catalyst_base']}<br>"
+                f"운전창: {r['T_min']}–{r['T_max']}°C (T_opt {r['T_opt']}°C)<br>"
+                f"최대 효율: {r['eff_max_pct']}%<br>"
+                f"NH₃ slip: {r['slip_ppm']} ppm<br>"
+                f"시장: {r['market']}<extra></extra>"
+            ),
+        ))
+
+    # 색상 범례 (수동 dummy traces)
+    for label, color in base_color_map.items():
+        if label in df_view["catalyst_base"].values:
+            fig.add_trace(go.Scatter(
+                x=[None], y=[None], mode="markers",
+                marker=dict(size=12, color=color, symbol="square",
+                             line=dict(color="#000000", width=1)),
+                name=label, showlegend=True,
+            ))
+
+    paper_style(fig, height=max(500, 24 * len(df_view) + 200))
+    fig.update_layout(
+        xaxis_title="운전 온도 (°C)",
+        yaxis_title="",
+        legend=dict(orientation="h", x=0.5, y=-0.18, xanchor="center",
+                     yanchor="top", bgcolor="rgba(255,255,255,0.95)"),
+        margin=dict(l=240, r=30, t=30, b=120),
+    )
+    fig.update_xaxes(range=[140, 620], dtick=50)
+    fig.update_yaxes(automargin=True, tickfont=dict(size=11))
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 효율 비교 막대
+    st.markdown("##### 제조사별 최대 NOx 제거 효율")
+    fig = go.Figure()
+    df_sorted = df_view.sort_values("eff_max_pct", ascending=True).reset_index(drop=True)
+    bar_colors = [base_color_map.get(b, "#888") for b in df_sorted["catalyst_base"]]
+    fig.add_trace(go.Bar(
+        x=df_sorted["eff_max_pct"],
+        y=df_sorted["label"],
+        orientation="h",
+        marker=dict(color=bar_colors,
+                     line=dict(color=COLOR["axis"], width=1)),
+        text=[f"{v:.1f}%" for v in df_sorted["eff_max_pct"]],
+        textposition="outside",
+        textfont=dict(family="Times New Roman, serif", size=11),
+        showlegend=False,
+        cliponaxis=False,
+    ))
+    paper_style(fig, height=max(400, 22 * len(df_sorted) + 150))
+    fig.update_layout(
+        xaxis_title="최대 NOx 제거 효율 (%)",
+        margin=dict(l=240, r=60, t=30, b=60),
+    )
+    fig.update_xaxes(range=[80, 100], dtick=2)
+    fig.update_yaxes(automargin=True, tickfont=dict(size=11))
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 데이터 테이블
+    st.markdown("##### 제조사 × 촉매 데이터 테이블")
+    st.dataframe(
+        df_view[[
+            "manufacturer", "country", "product", "chemistry",
+            "catalyst_base", "form", "T_min", "T_max", "T_opt",
+            "eff_max_pct", "slip_ppm", "market", "ref",
+        ]].rename(columns={
+            "manufacturer": "제조사", "country": "국가", "product": "제품",
+            "chemistry": "화학식", "catalyst_base": "베이스", "form": "형상",
+            "T_min": "T_min(°C)", "T_max": "T_max(°C)", "T_opt": "T_opt(°C)",
+            "eff_max_pct": "효율(%)", "slip_ppm": "Slip(ppm)",
+            "market": "시장", "ref": "출처",
+        }),
+        use_container_width=True, hide_index=True,
+    )
+
+    st.markdown("---")
+    st.subheader("저온 SCR 효율 R&D 트렌드 (1995–2025)")
+    st.caption("학술·산업계 발표 효율 데이터 시계열. T<300°C 영역에서의 "
+               "Mn-CeO₂, Cu-CHA, V-Mn-Ce 등 신규 촉매 발전 추적.")
+
+    df_rnd = pd.DataFrame(LT_SCR_RND)
+
+    # 산점도: x=year, y=efficiency, marker size=T_C inverse, color by tech family
+    def _tech_family(t: str) -> str:
+        if "Mn" in t and "Fe" not in t: return "Mn 계열"
+        if "Cu" in t: return "Cu 계열"
+        if "V-Mn" in t or "V-W-Mo" in t: return "V/Ti 강화"
+        if "Fe" in t: return "Fe-Cu 복합"
+        return "V/Ti 클래식"
+    df_rnd["family"] = df_rnd["tech"].apply(_tech_family)
+
+    family_colors = {
+        "V/Ti 클래식":  COLOR["VTi"],
+        "V/Ti 강화":    "#5b8aaf",
+        "Cu 계열":      COLOR["Cu_zeo"],
+        "Fe-Cu 복합":   COLOR["Fe_zeo"],
+        "Mn 계열":      "#0d9488",
+    }
+
+    fig = go.Figure()
+    for fam, col in family_colors.items():
+        sub = df_rnd[df_rnd["family"] == fam]
+        if len(sub) == 0:
+            continue
+        fig.add_trace(go.Scatter(
+            x=sub["year"], y=sub["eff_pct"],
+            mode="markers+lines",
+            name=fam,
+            line=dict(color=col, width=1.5, dash="dot"),
+            marker=dict(
+                size=[max(8, 30 - (T - 150) * 0.3) for T in sub["T_C"]],
+                color=col,
+                line=dict(color="#000000", width=1.2),
+                symbol="circle",
+            ),
+            customdata=sub[["tech", "T_C", "note"]].values,
+            hovertemplate=(
+                "<b>%{customdata[0]}</b><br>"
+                "Year: %{x}, Efficiency: %{y}%<br>"
+                "운전온도: %{customdata[1]}°C<br>"
+                "비고: %{customdata[2]}<extra></extra>"
+            ),
+        ))
+
+    paper_style(fig, height=460)
+    fig.update_layout(
+        xaxis_title="발표 연도",
+        yaxis_title="NOx 제거 효율 (%)",
+        legend=dict(orientation="h", x=0.5, y=-0.20, xanchor="center",
+                     yanchor="top", bgcolor="rgba(255,255,255,0.95)"),
+        margin=dict(l=72, r=30, t=30, b=130),
+    )
+    fig.update_xaxes(range=[1992, 2027], dtick=2)
+    fig.update_yaxes(range=[82, 100], dtick=2)
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 운전온도 vs 효율 (저온 SCR 발전 추세)
+    st.markdown("##### 운전온도 vs 효율 (저온 SCR 진화)")
+    fig = go.Figure()
+    for fam, col in family_colors.items():
+        sub = df_rnd[df_rnd["family"] == fam]
+        if len(sub) == 0:
+            continue
+        fig.add_trace(go.Scatter(
+            x=sub["T_C"], y=sub["eff_pct"],
+            mode="markers+text",
+            name=fam,
+            text=sub["year"].astype(str),
+            textposition="top center",
+            textfont=dict(family="Times New Roman, serif", size=10),
+            marker=dict(size=14, color=col,
+                         line=dict(color="#000000", width=1.2),
+                         symbol="circle"),
+            hovertemplate=(
+                "<b>" + sub["tech"] + "</b><br>"
+                "운전온도: %{x}°C<br>"
+                "효율: %{y}%<extra></extra>"
+            ),
+        ))
+
+    # 화살표 주석: '저온화 + 효율↑' 추세
+    fig.add_annotation(
+        x=200, y=95, ax=320, ay=89.5,
+        xref="x", yref="y", axref="x", ayref="y",
+        showarrow=True, arrowhead=3, arrowsize=1.4,
+        arrowwidth=1.5, arrowcolor="#444",
+        text="추세: 저온화 ↓ + 효율 ↑",
+        font=dict(family="Times New Roman, serif", size=12, color="#444"),
+        bgcolor="rgba(255,255,255,0.85)",
+        bordercolor="#444", borderwidth=1,
+    )
+
+    paper_style(fig, height=460)
+    fig.update_layout(
+        xaxis_title="운전 온도 (°C)",
+        yaxis_title="NOx 제거 효율 (%)",
+        legend=dict(orientation="h", x=0.5, y=-0.20, xanchor="center",
+                     yanchor="top", bgcolor="rgba(255,255,255,0.95)"),
+        margin=dict(l=72, r=30, t=30, b=130),
+    )
+    fig.update_xaxes(range=[150, 380], dtick=20)
+    fig.update_yaxes(range=[82, 100], dtick=2)
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.info(
+        "🔬 **저온 SCR 트렌드 핵심 결론**\n\n"
+        "- **저온화 추세**: 2000년대 350°C → 2020년대 200~240°C로 운전 온도 ~100°C 하향\n"
+        "- **Mn-CeO₂ 계열**이 150~250°C에서 90% 효율 달성, **tail-end SCR** 시장 부상\n"
+        "- **Cu-SSZ-13 / Cu-SAPO-34**는 저온~고온 광역(200~600°C)에서 90% 이상 유지 → "
+        "단일 촉매로 GT/Diesel/Industrial 통합 가능\n"
+        "- 저온 SCR이 발전하면 **air tempering의 필요성 자체가 감소** → "
+        "고온 SCR 옵션과 별개로 SCGT 운영 유연성 증가"
+    )
+
+
 st.markdown("---")
 st.caption(
-    "SCGT NOx Control Benchmark v2.0 · "
+    "SCGT NOx Control Benchmark v2.1 · "
     "Methodology: EPA AP-42 §3.1, EPA Cost Manual Ch.2 (SCR), "
-    "EPRI 3002022688/3002030748 · "
+    "EPRI 3002022688/3002030748 · 제조사 카탈로그 (Cormetech, Topsoe, JM, BASF, "
+    "Umicore, Hitachi-Zosen, MHI) · "
     "본 결과는 개념설계 단계의 비교 검토용이며, 상세 설계는 OEM 견적과 사이트 데이터에 기반."
 )
