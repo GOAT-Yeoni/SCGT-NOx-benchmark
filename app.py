@@ -73,17 +73,89 @@ st.markdown(
     .metric-card .delta-bad  { color: #b91c1c; font-size: 13px; }
     .metric-card .delta-neutral { color: #555; font-size: 13px; }
     div[data-testid="stSidebar"] { background-color: #f1efe8; }
+
+    /* ── 탭: 클릭 가능한 카드 스타일 ───────────────────────────────── */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 4px;
-        background-color: #ebe8df;
-        padding: 4px;
-        border-radius: 4px;
+        gap: 14px;
+        background-color: transparent;
+        padding: 16px 4px 12px 4px;
+        border-bottom: 2px solid #d4d4d4;
+        margin-bottom: 14px;
     }
-    .stTabs [data-baseweb="tab"] { background-color: transparent; color: #444; }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #ffffff !important;
+        color: #1f2937 !important;
+        padding: 14px 28px !important;
+        height: auto !important;
+        min-width: 130px;
+        border: 1.5px solid #c4bfb1 !important;
+        border-radius: 8px !important;
+        font-family: 'Times New Roman', Times, serif !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        letter-spacing: 0.4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        cursor: pointer !important;
+        transition: all 0.15s ease-in-out;
+    }
+    .stTabs [data-baseweb="tab"] p {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #faf8f0 !important;
+        border-color: #4b5563 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.10);
+    }
     .stTabs [aria-selected="true"] {
         background-color: #1f2937 !important;
         color: #ffffff !important;
+        border-color: #1f2937 !important;
+        box-shadow: 0 3px 8px rgba(31,41,55,0.30);
+        transform: translateY(-1px);
     }
+    .stTabs [aria-selected="true"] p { color: #ffffff !important; }
+    .stTabs [data-baseweb="tab-highlight"],
+    .stTabs [data-baseweb="tab-border"] { display: none !important; }
+
+    /* ── 인트로 박스 ──────────────────────────────────────────────── */
+    .intro-box {
+        background-color: #ffffff;
+        border-left: 5px solid #1f2937;
+        border-radius: 4px;
+        padding: 18px 24px;
+        margin: 14px 0 18px 0;
+        font-family: 'Times New Roman', Times, serif;
+        line-height: 1.65;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .intro-box .obj-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+    .intro-box .obj-row {
+        display: flex;
+        gap: 24px;
+        margin-top: 12px;
+    }
+    .intro-box .obj-col {
+        flex: 1;
+    }
+    .intro-box .obj-col h5 {
+        color: #b91c1c;
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+    .intro-box .obj-col.target h5 { color: #15803d; }
+    .intro-box ul { margin: 4px 0 0 0; padding-left: 18px; font-size: 14px; }
+    .intro-box li { margin: 2px 0; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -858,60 +930,112 @@ def kpi_card(label: str, value: str, delta: str = "", delta_kind: str = "neutral
 # ============================================================================
 # 메인
 # ============================================================================
-st.title("SCGT NOx Control Benchmark")
+st.title("SCGT 고온 SCR 도입 벤치마크 툴")
 st.markdown(
-    "**단순사이클 가스터빈** 배기가스 NOx 제어 비교 툴 — "
-    "`Air Tempering + 저온 SCR (V/Ti)` vs `고온 SCR (Cu/Fe-zeolite, Cu-SAPO-34)`"
+    "**Air Tempering(냉각 공기 주입) 공정을 제거**하고 **고온 SCR로 직접 운전**하는 "
+    "기술 전환을 정량 평가하는 SCGT(단순사이클 가스터빈) NOx 제어 벤치마킹 툴."
+)
+
+st.markdown(
+    """
+    <div class="intro-box">
+      <div class="obj-title">🎯 프로젝트 목표</div>
+      SCGT 배기 온도(통상 480~580°C)를 외기 혼합으로 350°C까지 강제 냉각하던
+      <b>Air Tempering 공정을 제거</b>하고, 제올라이트 베이스의
+      <b>고온 SCR 촉매(Cu-SSZ-13 / Cu-SAPO-34 / Fe-zeolite)</b>로
+      배기 온도 그대로 직접 NOx 제어를 수행하는 시나리오를 벤치마킹.
+      <div class="obj-row">
+        <div class="obj-col">
+          <h5>기존 (Baseline)</h5>
+          <b>저온 SCR + Air Tempering</b>
+          <ul>
+            <li>외기 혼합 → 배기 350°C 냉각</li>
+            <li>V₂O₅-WO₃/TiO₂ 촉매 (280~420°C)</li>
+            <li>폐열 손실 + 블로워 전력 소모</li>
+            <li>외기 혼합 시스템 추가 CAPEX</li>
+          </ul>
+        </div>
+        <div class="obj-col target">
+          <h5>대안 (Target)</h5>
+          <b>고온 SCR 직접 운전</b>
+          <ul>
+            <li>외기 혼합 없이 배기 그대로 SCR 통과</li>
+            <li>Cu/Fe-zeolite, Cu-SAPO-34 (380~600°C)</li>
+            <li>폐열 ~80~100 MWth 회수 가능</li>
+            <li>Air Tempering 시스템 자체 제거</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 st.caption(
     "데이터: EPA RBLC · EPA AP-42 §3.1 · EPA Cost Manual Ch.2 · "
-    "EPRI 3002022688/3002030747/3002030748 · GE/Siemens/MHI 사양"
+    "EPRI 3002022688/3002030747/3002030748 · 제조사 카탈로그 (Cormetech, Topsoe, JM, "
+    "BASF, Umicore, Hitachi-Zosen, MHI) · GE/Siemens/MHI GT 사양"
 )
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["종합비교", "에너지분해", "경제성", "트렌드", "촉매·제조사"]
+    ["📊  종합비교", "⚡  에너지분해", "💵  경제성", "📈  트렌드", "🧪  촉매·제조사"]
 )
 
 # ----------------------------------------------------------------------------
 # Tab 1: 종합비교
 # ----------------------------------------------------------------------------
 with tab1:
-    st.subheader("핵심 지표")
+    st.subheader("고온 SCR 도입 효과 — 기존 (LT+AT) → 대안 (HT-SCR)")
+    st.caption("Air Tempering 제거 + 고온 SCR 직접 운전 시 얻는 정량적 이득.")
+
+    delta_LCOC = res_HT["LCOC"] - res_LT["LCOC"]
+    delta_capex = res_HT["capex_total"] - res_LT["capex_total"]
+    delta_opex = res_HT["opex_annual"] - res_LT["opex_annual"]
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        delta = res_HT["LCOC"] - res_LT["LCOC"]
-        kpi_card("LCOC — 저온 SCR + AT",
-                 f"${res_LT['LCOC']:.2f}/kg-NOx",
-                 f"고온 SCR Δ {delta:+.2f}", "neutral")
+        kpi_card(
+            "LCOC 절감 효과",
+            f"{(-delta_LCOC):+.2f} USD/kg",
+            f"기존 ${res_LT['LCOC']:.2f} → 대안 ${res_HT['LCOC']:.2f}",
+            "good" if delta_LCOC < 0 else "bad",
+        )
     with c2:
-        kpi_card("LCOC — 고온 SCR",
-                 f"${res_HT['LCOC']:.2f}/kg-NOx",
-                 f"vs 저온 {(-delta):+.2f}",
-                 "good" if delta < 0 else "bad")
+        kpi_card(
+            "회수 가능 폐열 (HT-SCR)",
+            f"{res_HT['wh_recoverable_MW']:.1f} MWth",
+            f"≈ {res_HT['steam_credit']/1e6:.2f}M USD/yr 스팀 크레딧",
+            "good",
+        )
     with c3:
-        kpi_card("연간 NOx 제거량",
-                 f"{res_LT['NOx_removed_kg_yr']/1000:,.1f} t/yr",
-                 f"전체 효율 {(1 - inp.NOx_out_ppm / inp.NOx_in_ppm) * 100:.1f}%",
-                 "neutral")
+        kpi_card(
+            "Air Tempering 제거 이득",
+            f"외기 {res_LT['air_kg_s']:.0f} kg/s ⊘",
+            f"AT CAPEX ${res_LT['air_capex']/1e6:.2f}M + "
+            f"블로워 {res_LT['elec_cost']/1e3:.0f}K USD/yr 제거",
+            "good",
+        )
     with c4:
-        kpi_card("고온 SCR 폐열 회수",
-                 f"{res_HT['wh_recoverable_MW']:.1f} MWth",
-                 f"≈ ${res_HT['steam_credit']/1e6:.2f}M/yr 절감",
-                 "good")
+        cat_delta = res_HT["cat_vol_m3"] - res_LT["cat_vol_m3"]
+        kpi_card(
+            "촉매 부피 변화 (HT − LT)",
+            f"{cat_delta:+.0f} m³",
+            f"LT {res_LT['cat_vol_m3']:.0f} → HT {res_HT['cat_vol_m3']:.0f} m³ "
+            f"(외기 희석 제거 효과)",
+            "good" if cat_delta < 0 else "neutral",
+        )
 
     st.markdown("---")
 
     df = pd.DataFrame({
         "지표": [
-            "SCR 운전온도 (°C)", "혼합 후 유량 (kg/s)", "외기 혼합량 (kg/s)",
+            "SCR 운전온도 (°C)", "SCR 통과 유량 (kg/s)", "외기 혼합량 (kg/s)",
             "촉매 베이스", "효율 능력 (%)", "효율 실제 (%)",
             "NH₃ 사용량 (kg/h)", "NH₃ slip (ppm)", "촉매 부피 (m³)",
             "SCR CAPEX (M USD)", "Air Tempering CAPEX (M USD)",
             "폐열회수 CAPEX (M USD)", "총 CAPEX (M USD)",
             "연간 OPEX (M USD/yr)", "LCOC (USD/kg-NOx)",
         ],
-        "Air Temp + 저온 SCR (V/Ti)": [
+        "기존 (LT + Air Tempering)": [
             f"{res_LT['scr_T_C']:.0f}", f"{res_LT['scr_kg_s']:.1f}",
             f"{res_LT['air_kg_s']:.1f}", res_LT["catalyst_base"],
             f"{res_LT['eff_capability']:.1f}", f"{res_LT['eff_actual']:.1f}",
@@ -921,7 +1045,7 @@ with tab1:
             "0.00", f"{res_LT['capex_total']/1e6:.2f}",
             f"{res_LT['opex_annual']/1e6:.2f}", f"${res_LT['LCOC']:.2f}",
         ],
-        f"고온 SCR ({res_HT['catalyst_base']})": [
+        f"대안 (HT-SCR / {res_HT['catalyst_base']})": [
             f"{res_HT['scr_T_C']:.0f}", f"{res_HT['scr_kg_s']:.1f}",
             "0.0", res_HT["catalyst_base"],
             f"{res_HT['eff_capability']:.1f}", f"{res_HT['eff_actual']:.1f}",
@@ -944,19 +1068,19 @@ with tab1:
                          horizontal_spacing=0.10, vertical_spacing=0.15)
     for i, (lt, ht) in enumerate(zip(LT_vals, HT_vals)):
         fig.add_trace(go.Bar(
-            x=["저온+AT"], y=[lt],
+            x=["기존<br>LT+AT"], y=[lt],
             marker_color=COLOR["LT_case"],
             marker_line_color=COLOR["axis"], marker_line_width=1,
-            showlegend=(i == 0), name="저온 SCR + AT",
+            showlegend=(i == 0), name="기존 (LT + Air Tempering)",
             text=[f"{lt:.2f}"], textposition="outside",
             textfont=dict(family="Times New Roman, serif", size=11),
             cliponaxis=False,
         ), row=1, col=i+1)
         fig.add_trace(go.Bar(
-            x=["고온"], y=[ht],
+            x=["대안<br>HT-SCR"], y=[ht],
             marker_color=COLOR["HT_case"],
             marker_line_color=COLOR["axis"], marker_line_width=1,
-            showlegend=(i == 0), name="고온 SCR",
+            showlegend=(i == 0), name="대안 (HT-SCR 직접)",
             text=[f"{ht:.2f}"], textposition="outside",
             textfont=dict(family="Times New Roman, serif", size=11),
             cliponaxis=False,
@@ -980,9 +1104,9 @@ with tab1:
 # Tab 2: 에너지 분해
 # ----------------------------------------------------------------------------
 with tab2:
-    st.subheader("배기 에너지 흐름")
-    st.caption("저온 SCR은 외기 혼합으로 350°C까지 냉각 → 폐열 손실. "
-               "고온 SCR은 배기 온도 유지 → 폐열보일러로 회수 가능.")
+    st.subheader("Air Tempering 제거가 만드는 폐열 회수 기회")
+    st.caption("기존 방식: GT 배기를 350°C까지 외기로 강제 냉각 → 그만큼의 엔탈피가 손실. "
+               "대안 방식: 배기 온도 그대로 SCR 통과 → 후단 폐열보일러로 직접 회수.")
 
     cp = 1.10
     Q_in = inp.exh_kg_s * cp * (inp.exh_T_C - 25.0) / 1000.0
@@ -1000,7 +1124,7 @@ with tab2:
     )
 
     with col1:
-        st.markdown("**저온 SCR + Air Tempering**")
+        st.markdown("**기존 — 저온 SCR + Air Tempering (Baseline)**")
         fig = go.Figure(go.Sankey(
             arrangement="snap",
             node=dict(
@@ -1030,7 +1154,7 @@ with tab2:
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        st.markdown("**고온 SCR 직접**")
+        st.markdown("**대안 — 고온 SCR 직접 운전 (Target)**")
         fig = go.Figure(go.Sankey(
             arrangement="snap",
             node=dict(
@@ -1124,12 +1248,12 @@ with tab3:
         LT_capex = [res_LT["scr_capex"]/1e6, res_LT["air_capex"]/1e6, 0]
         HT_capex = [res_HT["scr_capex"]/1e6, 0, res_HT["wh_capex"]/1e6]
         fig = go.Figure()
-        fig.add_trace(go.Bar(name="저온+AT", x=items, y=LT_capex,
+        fig.add_trace(go.Bar(name="기존 (LT+AT)", x=items, y=LT_capex,
                               marker_color=COLOR["LT_case"],
                               marker_line_color=COLOR["axis"], marker_line_width=1,
                               text=[f"{v:.2f}" for v in LT_capex],
                               textposition="outside"))
-        fig.add_trace(go.Bar(name="고온", x=items, y=HT_capex,
+        fig.add_trace(go.Bar(name="대안 (HT-SCR)", x=items, y=HT_capex,
                               marker_color=COLOR["HT_case"],
                               marker_line_color=COLOR["axis"], marker_line_width=1,
                               text=[f"{v:.2f}" for v in HT_capex],
@@ -1175,11 +1299,11 @@ with tab3:
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=years, y=LT_cum/1e6, mode="lines+markers",
-                              name="저온 SCR + AT",
+                              name="기존 (LT + Air Tempering)",
                               line=dict(color=COLOR["LT_case"], width=2.4),
                               marker=dict(size=7, line=dict(color=COLOR["axis"], width=1))))
     fig.add_trace(go.Scatter(x=years, y=HT_cum/1e6, mode="lines+markers",
-                              name="고온 SCR",
+                              name="대안 (HT-SCR 직접)",
                               line=dict(color=COLOR["HT_case"], width=2.4, dash="dash"),
                               marker=dict(size=7, symbol="square",
                                            line=dict(color=COLOR["axis"], width=1))))
@@ -1214,10 +1338,10 @@ with tab3:
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=xs, y=LT_y, mode="lines",
-                              name="저온 SCR + AT",
+                              name="기존 (LT + Air Tempering)",
                               line=dict(color=COLOR["LT_case"], width=2.4)))
     fig.add_trace(go.Scatter(x=xs, y=HT_y, mode="lines",
-                              name="고온 SCR",
+                              name="대안 (HT-SCR 직접)",
                               line=dict(color=COLOR["HT_case"], width=2.4, dash="dash")))
     fig.update_layout(xaxis_title=x_label, yaxis_title="LCOC (USD/kg-NOx)",
                        legend=dict(orientation="h", y=1.12,
@@ -1229,9 +1353,10 @@ with tab3:
 # Tab 4: 트렌드 (LIT)
 # ----------------------------------------------------------------------------
 with tab4:
-    st.subheader("실측 성능 데이터 (EPA RBLC + EPRI + OEM)")
-    st.caption("촉매 베이스(V/Ti · Cu-zeolite · Fe-zeolite · Cu-SAPO-34)별 분류. "
-               "마커 크기 = NH₃ slip (ppm). ★ = 현재 입력 운전점.")
+    st.subheader("실측 현장 사례 (EPA RBLC + EPRI + OEM)")
+    st.caption("저온 SCR(BACT 시설) vs 고온 SCR(EPRI 파일럿/시연) 실측 데이터. "
+               "촉매 베이스별 마커 구분, 마커 크기 = NH₃ slip (ppm). "
+               "★ = 현재 입력 조건의 운전점 (기존/대안).")
 
     df_lit = pd.DataFrame(LIT_RBLC)
 
@@ -1273,18 +1398,18 @@ with tab4:
     # 현재 입력 운전점
     fig.add_trace(go.Scatter(
         x=[res_LT["scr_T_C"]], y=[res_LT["eff_actual"]],
-        mode="markers+text", name="현재 LT (V/Ti)",
+        mode="markers+text", name="기존 운전점 (LT + AT, V/Ti)",
         marker=dict(symbol="star", size=22, color="#ffffff",
                     line=dict(color=COLOR["VTi"], width=2.5)),
-        text=["LT"], textposition="top center",
+        text=["기존"], textposition="top center",
         textfont=dict(family="Times New Roman, serif", size=12),
     ))
     fig.add_trace(go.Scatter(
         x=[res_HT["scr_T_C"]], y=[res_HT["eff_actual"]],
-        mode="markers+text", name=f"현재 HT ({res_HT['catalyst_base']})",
+        mode="markers+text", name=f"대안 운전점 (HT-SCR, {res_HT['catalyst_base']})",
         marker=dict(symbol="star", size=22, color="#ffffff",
                     line=dict(color=COLOR["HT_case"], width=2.5)),
-        text=["HT"], textposition="top center",
+        text=["대안"], textposition="top center",
         textfont=dict(family="Times New Roman, serif", size=12),
     ))
 
@@ -1649,7 +1774,7 @@ with tab5:
 
 st.markdown("---")
 st.caption(
-    "SCGT NOx Control Benchmark v2.1 · "
+    "SCGT 고온 SCR 도입 벤치마크 v2.2 — Air Tempering 제거 평가 · "
     "Methodology: EPA AP-42 §3.1, EPA Cost Manual Ch.2 (SCR), "
     "EPRI 3002022688/3002030748 · 제조사 카탈로그 (Cormetech, Topsoe, JM, BASF, "
     "Umicore, Hitachi-Zosen, MHI) · "
